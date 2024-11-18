@@ -1,81 +1,84 @@
-import math
-import struct
+import os
 
 
-def calculate_expression(x):
+def generate_zubchaty_list(size, fill_char):
     """
-    Обчислює вираз y = cos(x) / tan(2x) для заданого x.
+    Генерує зубчатий масив, де непарні рядки заповнені символом,
+    а чітні - залишаються порожніми.
 
-    :param x: значення для обчислення виразу
-    :return: результат обчислення
+    :param size: Розмір квадратної матриці
+    :param fill_char: Символ-заповнювач для заштрихованих смуг
+    :return: Матриця (список списків) для зубчатої матриці
     """
-    try:
-        # Перевірка на можливу помилку ділення на нуль
-        tan_2x = math.tan(2 * x)
-        if tan_2x == 0:
-            raise ValueError("Помилка: знаменник дорівнює нулю (tan(2x) = 0).")
+    matrix = []
 
-        result = math.cos(x) / tan_2x
-        return result
-    except ValueError as e:
-        print(f"Помилка: {e}")
-        return None
+    for i in range(size):
+        row = []
+        if i % 2 != 0:  # Непарні рядки (i % 2 != 0) заповнені символами
+            row = [fill_char] * size
+        else:  # Чітні рядки залишаються порожніми
+            row = [' '] * size
+        matrix.append(row)
+
+    return matrix
 
 
-def save_to_text_file(filename, data):
+def print_matrix(matrix):
     """
-    Зберігає дані у текстовому файлі.
+    Виводить матрицю на екран.
 
-    :param filename: ім'я файлу для збереження
-    :param data: дані, які потрібно записати
+    :param matrix: Матриця для виведення
+    """
+    for row in matrix:
+        print(" ".join(row))
+
+
+def save_to_file(matrix, filename):
+    """
+    Зберігає матрицю у файл.
+
+    :param matrix: Матриця для збереження
+    :param filename: Ім'я файлу для збереження
     """
     try:
         with open(filename, 'w') as file:
-            file.write(f"Результати обчислення виразу:\n{data}\n")
-        print(f"Результати збережено у текстовий файл: {filename}")
-    except IOError as e:
-        print(f"Помилка запису у файл: {e}")
-
-
-def save_to_binary_file(filename, data):
-    """
-    Зберігає дані у двійковому файлі.
-
-    :param filename: ім'я файлу для збереження
-    :param data: дані, які потрібно записати
-    """
-    try:
-        with open(filename, 'wb') as file:
-            # Запис результату як числа з плаваючою комою в двійковому форматі
-            file.write(struct.pack('f', data))
-        print(f"Результати збережено у двійковий файл: {filename}")
+            for row in matrix:
+                file.write(" ".join(row) + "\n")
+        print(f"Масив збережено у файл: {filename}")
     except IOError as e:
         print(f"Помилка запису у файл: {e}")
 
 
 def main():
     """
-    Основна функція програми. Зчитує значення x, обчислює вираз і зберігає результат у файли.
+    Основна функція програми.
+    Запитує розмір матриці та символ-заповнювач, генерує матрицю і зберігає її у файл.
     """
     try:
-        # Введення значення x
-        x = float(input("Введіть значення x: "))
+        # Введення розміру матриці
+        size = int(input("Введіть розмір квадратної матриці: "))
+        if size <= 0:
+            print("Розмір матриці має бути додатнім числом.")
+            return
 
-        # Обчислення виразу
-        result = calculate_expression(x)
+        # Введення символу-заповнювача
+        fill_char = input("Введіть символ-заповнювач: ")
+        if len(fill_char) != 1:
+            print("Помилка: необхідно ввести рівно один символ.")
+            return
 
-        if result is not None:
-            # Виведення результату на екран
-            print(f"Результат обчислення для x = {x}: y = {result}")
+        # Генерація зубчатого масиву
+        matrix = generate_zubchaty_list(size, fill_char)
 
-            # Збереження результату в текстовий файл
-            save_to_text_file('result.txt', result)
+        # Виведення матриці на екран
+        print("\nСформована зубча матриця:")
+        print_matrix(matrix)
 
-            # Збереження результату в двійковий файл
-            save_to_binary_file('result.bin', result)
+        # Збереження у файл
+        save_to_file(matrix, "zubchaty_list_output.txt")
 
     except ValueError:
-        print("Виникла помилка: введіть коректне число для x.")
+        print("Виникла помилка при введенні розміру матриці. Будь ласка, введіть ціле число.")
 
 
 if __name__ == "__main__":
